@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iradka.com | Mäkkosť, citlivosť a odlišnosť</title>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Tmavšie, no hrejivé a veselé pozadie - žiadna nudná čierna */
+            --bg-top: #261923;      /* Hlboká slivková */
+            --bg-mid: #332026;      /* Teplá bordová */
+            --bg-bot: #1f1916;      /* Tmavá kávová */
+            --accent: #f2a65a;      /* Hrejivá marhuľová/zlatá */
+            --text-main: #f7efe8;   /* Krémová biela */
+            --text-muted: #cbbab0;  /* Jemná teplá sivá */
+            --paper: #faf6f0;       /* Farba fotopapiera */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-main);
+            background: linear-gradient(160deg, var(--bg-top) 0%, var(--bg-mid) 50%, var(--bg-bot) 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+
+        /* Jemná filmová textúra na pozadí */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(rgba(242, 166, 90, 0.08) 1px, transparent 0);
+            background-size: 32px 32px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        header {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2.5rem 1rem 1rem;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.4rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: var(--accent);
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+            font-weight: 300;
+        }
+
+        /* Sekcia so štosom fotiek */
+        .gallery-section {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem 4rem;
+            min-height: 75vh;
+        }
+
+        .hint {
+            font-size: 0.85rem;
+            color: var(--accent);
+            background: rgba(242, 166, 90, 0.12);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(242, 166, 90, 0.25);
+            transition: opacity 0.3s;
+        }
+
+        /* Kontajner pre štos fotiek */
+        .photo-stack {
+            position: relative;
+            width: 340px;
+            height: 430px;
+            max-width: 88vw;
+            cursor: grab;
+            perspective: 1000px;
+        }
+
+        .photo-stack:active {
+            cursor: grabbing;
+        }
+
+        /* Samotná fotka v papierovom rámiku */
+        .photo-card {
+            position: absolute;
+            inset: 0;
+            background: var(--paper);
+            padding: 14px 14px 48px 14px;
+            border-radius: 4px;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
+            user-select: none;
+            will-change: transform;
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 2px;
+            /* Jemný nádych mäkkosti pre demo fotky */
+            filter: contrast(0.95) saturate(1.05);
+            pointer-events: none;
+        }
+
+        .photo-caption {
+            position: absolute;
+            bottom: 12px;
+            left: 16px;
+            right: 16px;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.15rem;
+            color: #3a2e28;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Animácia odloženia vrchnej fotky na spodok štosu */
+        .photo-card.tucking-under {
+            animation: tuckUnder 0.75s cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
+        }
+
+        @keyframes tuckUnder {
+            0% {
+                transform: translate(0, 0) rotate(var(--rot)) scale(1);
+                z-index: 20;
+            }
+            45% {
+                transform: translate(115%, -20px) rotate(14deg) scale(0.96);
+                z-index: 20;
+            }
+            50% {
+                z-index: 0; /* V polovici pohybu sa schová pod ostatné */
+            }
+            100% {
+                transform: translate(0, 8px) rotate(var(--rot)) scale(0.94);
+                z-index: 0;
+            }
+        }
+
+        /* Sekcia s príbehom a objektívmi */
+        .story-section {
+            position: relative;
+            z-index: 2;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 6rem;
+        }
+
+        .story-card {
+            background: rgba(255, 248, 240, 0.04);
+            border: 1px solid rgba(242, 166, 90, 0.18);
+            border-radius: 16px;
+            padding: 2.5rem;
+            backdrop-filter: blur(8px);
+        }
+
+        h1, h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            color: var(--accent);
+            margin-bottom: 1.2rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--text-main);
+            margin: 2.2rem 0 0.8rem;
+        }
+
+        p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .highlight {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .lenses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.2rem;
+            margin-top: 1.5rem;
+        }
+
+        .lens-item {
+            background: rgba(0, 0, 0, 0.22);
+            padding: 1.3rem;
+            border-radius: 10px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .lens-item h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.35rem;
+            color: var(--accent);
+            margin-bottom: 0.4rem;
+        }
+
+        .lens-item p {
+            font-size: 0.92rem;
+            margin-bottom: 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">iradka.com</div>
+        <div class="subtitle">Fotografia s dušou, bez zbytočnej ostrosti</div>
+    </header>
+
+    <section class="gallery-section">
+        <div class="hint" id="hint">Nabeňte kurzorom na fotky a točte kolieskom myši (alebo kliknite)</div>
+        
+        <div class="photo-stack" id="photoStack">
+            <!-- Fotky sú zatiaľ ukážkové, ľahko ich vymeníme za vaše -->
+            <div class="photo-card" data-index="0">
+                <img src="https://unsplash.com" alt="Mäkké svetlo">
+                <div class="photo-caption"><span>Ranná hmla a staré sklo</span><span>01 / 04</span></div>
+            </div>
+            <div class="photo-card" data-index="1">
+                <img src="https://unsplash.com" alt="Portrét s dušou">
+                <div class="photo-caption"><span>Pohľad, ktorý nereže</span><span>02 / 04</span></div>
+            </div>
+            <div class="photo-card" data-index="2">
+                <img src="https://unsplash.com" alt="Ticho a priestor">
+                <div class="photo-caption"><span>Neostrosť ako emócia</span><span>03 / 04</span></div>
+            </div>
+            <div class="photo-card" data-index="3">
+                <img src="https://unsplash.com" alt="Teplé tóny">
+                <div class="photo-caption"><span>Svetlo v izbe</span><span>04 / 04</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="story-section">
+        <div class="story-card">
+            <h1>Prečo nerobím fotky, ktoré sa zarezávajú do očných buliev</h1>
+            <p>
+                Dnešný digitálny svet je posadnutý dokonalou ostrosťou. Moderné objektívy dokážu spočítať každú mihalnicu a každý pór na tvári s chirurgickou presnosťou. Lenže ľudské oko – a najmä ľudská spomienka – takto nefunguje.
+            </p>
+            <p>
+                Moja fotografia ide opačným smerom. Hľadám <span class="highlight">mäkkosť, citlivosť a atmosféru</span>. Chcem, aby ste sa na fotku pozerali s pokojom, nie aby vás jej ostrosť rezala do očí.
+            </p>
+
+            <h2>Moje objektívy a prečo ich milujem</h2>
+            <p>
+                Namiesto sterilných moderných skiel siaham po objektívoch s charakterom, starých manuálnych sklách a špeciálnych konštrukciách, ktoré kreslia svetlo ako štetec na plátno.
+            </p>
+
+            <div class="lenses-grid">
