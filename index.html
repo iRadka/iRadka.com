@@ -61,11 +61,11 @@
         .container {
             position: relative;
             z-index: 2;
-            max-width: 920px;
+            max-width: 1200px;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 2.2rem;
+            gap: 3rem;
         }
 
         header {
@@ -95,33 +95,33 @@
 
         .olive-triangle {
             position: absolute;
-            top: -25px;
-            left: 35px;
-            width: 360px;
-            height: 320px;
+            top: -30px;
+            left: 45px;
+            width: 480px;
+            height: 420px;
             background: #3d4a26;
             clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
             transform: rotate(-15deg);
             opacity: 0.9;
             z-index: 1;
             pointer-events: none;
-            filter: drop-shadow(0px 18px 24px rgba(10, 2, 5, 0.75));
+            filter: drop-shadow(0px 22px 28px rgba(10, 2, 5, 0.8));
         }
         /* Polaroid fotka založená pod sklom, ktorej roh vytŕča von */
 .under-glass-polaroid {
-    position: absolute;
-    bottom: -35px;       /* Vytŕča 35 px pod spodnú hranu skla */
-    right: -25px;        /* Vytŕča 25 px za pravú hranu skla */
-    width: 210px;
-    height: 250px;
-    background: var(--paper);
-    padding: 10px 10px 38px 10px; /* Širší spodný okraj typický pre Polaroid */
-    border-radius: 3px;
-    transform: rotate(16deg);
-    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.7);
-    z-index: 1;          /* Leží POD sklenenou kartou (tá má z-index: 2) */
-    pointer-events: none;
-}
+            position: absolute;
+            bottom: -45px;
+            right: -30px;
+            width: 260px;
+            height: 310px;
+            background: var(--paper);
+            padding: 12px 12px 46px 12px;
+            border-radius: 3px;
+            transform: rotate(15deg);
+            box-shadow: 0 22px 45px rgba(0, 0, 0, 0.75);
+            z-index: 1;
+            pointer-events: none;
+        }
 
 .under-glass-polaroid img {
     width: 100%;
@@ -163,9 +163,11 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 2.5rem 1.5rem 3.2rem;
+            min-height: 76vh;
+            padding: 3.5rem 2rem 3rem;
             overflow: visible;
         }
+
 
         .hint {
             font-size: 0.85rem;
@@ -180,9 +182,9 @@
 
         .photo-stack {
             position: relative;
-            width: 450px;
-            height: 300px;
-            max-width: 85vw;
+            width: 690px;
+            height: 460px;
+            max-width: 86vw;
             margin: 0 auto;
             cursor: grab;
             overflow-anchor: none;
@@ -275,6 +277,34 @@
             font-size: 0.85rem;
             opacity: 0.75;
         }
+                /* ASYMETRICKÉ ROZLOŽENIE SPODNÝCH ČLÁNKOV (koniec šablónovej symetrie) */
+        .story-card {
+            max-width: 760px;
+            margin-left: 2%;
+            margin-right: auto;
+        }
+
+        .asymmetric-lenses {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-top: -1rem;
+        }
+
+        .lens-card-right {
+            max-width: 620px;
+            margin-left: auto;
+            margin-right: 3%;
+        }
+
+        .lens-card-left {
+            max-width: 640px;
+            margin-left: 6%;
+            margin-right: auto;
+            margin-top: -1.5rem;
+        }
+    
+
     </style>
 </head>
 <body>
@@ -341,7 +371,8 @@
             </section>
         </div>
 
-        <article class="glass-card">
+                <!-- Hlavný článok posunutý mierne vľavo -->
+        <article class="glass-card story-card">
             <h1>Prečo nerobím fotky, ktoré sa zarezávajú do očných buliev</h1>
             <p>
                 Dnešný digitálny svet je posadnutý dokonalou ostrosťou. Moderné objektívy dokážu spočítať každú mihalnicu a každý pór na tvári s chirurgickou presnosťou. Lenže ľudské oko – a najmä ľudská spomienka – takto nefunguje.
@@ -351,17 +382,20 @@
             </p>
         </article>
 
-        <section class="cards-grid">
-            <div class="glass-card">
+        <!-- Asymetricky rozhádzané karty objektívov -->
+        <section class="asymmetric-lenses">
+            <div class="glass-card lens-card-right">
                 <h3>Staré manuálne sklá (Vintage)</h3>
                 <p>Majú vlastné chyby, jemný závoj v protisvetle a krémové rozostrenie pozadia, ktoré nenapodobní žiadny digitálny filter.</p>
             </div>
-            <div class="glass-card">
+            <div class="glass-card lens-card-left">
                 <h3>Mäkkokresliace objektívy</h3>
                 <p>Zjemňujú prechody medzi svetlom a tieňom. Dodávajú portrétom aj krajine snovú, takmer maliarsku citlivosť.</p>
             </div>
         </section>
 
+
+     
         <footer>
             © 2026 iRadka.com — Vytvorené s citom pre svetlo
         </footer>
