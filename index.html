@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iradka.com | Mäkkosť, citlivosť a odlišnosť</title>
+    <title>iRadka.com | Mäkkosť, citlivosť a odlišnosť</title>
     <link rel="preconnect" href="https://googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
     <link href="https://googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Tmavšie, no hrejivé a veselé pozadie - žiadna nudná čierna */
-            --bg-top: #261923;      /* Hlboká slivková */
-            --bg-mid: #332026;      /* Teplá bordová */
-            --bg-bot: #1f1916;      /* Tmavá kávová */
-            --accent: #f2a65a;      /* Hrejivá marhuľová/zlatá */
-            --text-main: #f7efe8;   /* Krémová biela */
-            --text-muted: #cbbab0;  /* Jemná teplá sivá */
-            --paper: #faf6f0;       /* Farba fotopapiera */
+            --burgundy-dark: #2a0813;
+            --burgundy-main: #4a0e23;
+            --accent: #f4b6c2;
+            --text-main: #fdf6f8;
+            --text-muted: #e0c6ce;
+            --paper: #faf6f0;
         }
 
         * {
@@ -32,36 +30,96 @@
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: var(--text-main);
-            background: linear-gradient(160deg, var(--bg-top) 0%, var(--bg-mid) 50%, var(--bg-bot) 100%);
+            background-color: var(--burgundy-dark);
+            background-image: linear-gradient(145deg, var(--burgundy-dark) 0%, var(--burgundy-main) 50%, #240610 100%);
             min-height: 100vh;
             overflow-x: hidden;
             line-height: 1.7;
+            padding: 2.5rem 1rem;
+            position: relative;
         }
 
-        /* Jemná filmová textúra na pozadí */
-        body::before {
-            content: "";
+        /* Rozmazané svetelné škvrny na pozadí */
+        .ambient-blobs {
             position: fixed;
             inset: 0;
-            background-image: radial-gradient(rgba(242, 166, 90, 0.08) 1px, transparent 0);
-            background-size: 32px 32px;
+            overflow: hidden;
             pointer-events: none;
             z-index: 0;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.55;
+        }
+
+        .blob-1 { width: 450px; height: 450px; background: #9e2a52; top: -80px; left: 10%; }
+        .blob-2 { width: 500px; height: 500px; background: #5c1945; bottom: 5%; right: 8%; }
+        .blob-3 { width: 350px; height: 350px; background: #c45b79; top: 40%; left: 45%; opacity: 0.35; }
+
+        /* Spoločný obal pre trojuholník a sklenený box */
+        .page-wrapper {
+            position: relative;
+            max-width: 1010px;
+            margin: 0 auto;
+        }
+
+        /* Statický olivovozelený trojuholník pevne pripútaný ku sklenenému boxu */
+        .olive-triangle {
+            position: absolute;
+            top: 35px;
+            left: 60px;
+            width: 380px;
+            height: 340px;
+            background: #3d4a26;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            transform: rotate(-15deg);
+            opacity: 0.9;
+            z-index: 1;
+            pointer-events: none;
+            /* Tieň presne kopírujúci tvar trojuholníka (posun X, posun Y, rozmazanie, farba) */
+            filter: drop-shadow(0px 18px 24px rgba(10, 2, 5, 0.75));
+}
+
+
+        /* HLAVNÝ SKLENENÝ BOX */
+        .glass-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            border-radius: 24px;
+            background-image: linear-gradient(
+                -60deg,
+                rgba(255, 255, 255, 0.22) 0%,
+                rgba(180, 189, 217, 0.12) 53%,
+                rgba(105, 122, 179, 0.16) 100%
+            );
+            backdrop-filter: url(#photoshop-frosted-glass);
+-webkit-backdrop-filter: url(#photoshop-frosted-glass);
+
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            box-shadow: 
+                0px 15px 25.38px 1.62px rgba(0, 0, 0, 0.55),
+                inset 0 1px 1px rgba(255, 255, 255, 0.45);
+            overflow: hidden;
         }
 
         header {
             position: relative;
             z-index: 2;
             text-align: center;
-            padding: 2.5rem 1rem 1rem;
+            padding: 3rem 1.5rem 1rem;
         }
 
         .logo {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 2.4rem;
+            font-size: 2.6rem;
             font-weight: 600;
             letter-spacing: 0.05em;
-            color: var(--accent);
+            color: var(--text-main);
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
         }
 
         .subtitle {
@@ -71,7 +129,7 @@
             font-weight: 300;
         }
 
-        /* Sekcia so štosom fotiek */
+        /* Sekcia so štosom fotiek - dokonale vycentrovaná */
         .gallery-section {
             position: relative;
             z-index: 2;
@@ -79,93 +137,108 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 2rem 1rem 4rem;
-            min-height: 75vh;
+            width: 100%;
+            padding: 2rem 1rem 3.5rem;
         }
 
         .hint {
             font-size: 0.85rem;
-            color: var(--accent);
-            background: rgba(242, 166, 90, 0.12);
-            padding: 0.4rem 1rem;
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.45rem 1.1rem;
             border-radius: 50px;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(242, 166, 90, 0.25);
-            transition: opacity 0.3s;
+            margin-bottom: 2.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            text-align: center;
         }
 
-        /* Kontajner pre štos fotiek */
+        /* Kontajner pre štos fotiek v pomere 13 x 15 cm */
         .photo-stack {
             position: relative;
-            width: 340px;
-            height: 430px;
-            max-width: 88vw;
+            width: 450px;
+            height: 300px; /* Pomer strán presne 13 : 15 */
+            max-width: 85vw;
+            margin: 0 auto;
             cursor: grab;
-            perspective: 1000px;
         }
 
         .photo-stack:active {
             cursor: grabbing;
         }
 
-        /* Samotná fotka v papierovom rámiku */
+        /* Klasická papierová fotka s rovnomerným bielym rámikom */
         .photo-card {
             position: absolute;
             inset: 0;
             background: var(--paper);
-            padding: 14px 14px 48px 14px;
-            border-radius: 4px;
-            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.2);
-            transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
+            padding: 12px;
+            border-radius: 3px;
+            box-shadow: 0 18px 40px rgba(18, 3, 8, 0.55), 0 2px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
             user-select: none;
             will-change: transform;
         }
+        
+
 
         .photo-card img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 2px;
-            /* Jemný nádych mäkkosti pre demo fotky */
+            display: block;
             filter: contrast(0.95) saturate(1.05);
             pointer-events: none;
         }
 
         .photo-caption {
             position: absolute;
-            bottom: 12px;
-            left: 16px;
-            right: 16px;
+            bottom: 18px;
+            left: 20px;
+            right: 20px;
             font-family: 'Cormorant Garamond', serif;
             font-style: italic;
-            font-size: 1.15rem;
-            color: #3a2e28;
+            font-size: 1.05rem;
+            color: #fdf6f8;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
             display: flex;
             justify-content: space-between;
+            pointer-events: none;
         }
 
-        /* Animácia odloženia vrchnej fotky na spodok štosu */
         .photo-card.tucking-under {
             animation: tuckUnder 0.75s cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
         }
 
         @keyframes tuckUnder {
-            0% {
-                transform: translate(0, 0) rotate(var(--rot)) scale(1);
-                z-index: 20;
-            }
-            45% {
-                transform: translate(115%, -20px) rotate(14deg) scale(0.96);
-                z-index: 20;
-            }
-            50% {
-                z-index: 0; /* V polovici pohybu sa schová pod ostatné */
-            }
-            100% {
-                transform: translate(0, 8px) rotate(var(--rot)) scale(0.94);
-                z-index: 0;
-            }
+            0% { transform: translate(0, 0) rotate(var(--rot)) scale(1); z-index: 20; }
+            45% { transform: translate(115%, -20px) rotate(14deg) scale(0.96); z-index: 20; }
+            50% { z-index: 0; }
+            100% { transform: translate(0, 8px) rotate(var(--rot)) scale(0.94); z-index: 0; }
         }
+          /* Animácia vytiahnutia spodnej fotky späť navrch */
+.photo-card.pulling-up {
+    animation: pullFromBottom 0.75s cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
+}
+
+@keyframes pullFromBottom {
+    0% {
+        transform: translate(0, 8px) rotate(var(--rot)) scale(0.94);
+        z-index: 0;
+    }
+    45% {
+        transform: translate( 115%, -20px) rotate( 14deg) scale(0.96);
+        z-index: 0;
+    }
+    50% {
+        z-index: 25;
+    }
+    100% {
+        transform: translate(0, 0) rotate(var(--rot)) scale(1);
+        z-index: 25;
+    }
+}
+
 
         /* Sekcia s príbehom a objektívmi */
         .story-section {
@@ -173,15 +246,15 @@
             z-index: 2;
             max-width: 720px;
             margin: 0 auto;
-            padding: 3rem 1.5rem 6rem;
+            padding: 1rem 2rem 4rem;
         }
 
-        .story-card {
-            background: rgba(255, 248, 240, 0.04);
-            border: 1px solid rgba(242, 166, 90, 0.18);
-            border-radius: 16px;
-            padding: 2.5rem;
-            backdrop-filter: blur(8px);
+        .story-inner-glass {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 20px;
+            padding: 2.2rem;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15);
         }
 
         h1, h2 {
@@ -190,28 +263,10 @@
             line-height: 1.25;
         }
 
-        h1 {
-            font-size: 2.4rem;
-            color: var(--accent);
-            margin-bottom: 1.2rem;
-        }
-
-        h2 {
-            font-size: 1.8rem;
-            color: var(--text-main);
-            margin: 2.2rem 0 0.8rem;
-        }
-
-        p {
-            color: var(--text-muted);
-            font-size: 1.05rem;
-            margin-bottom: 1.2rem;
-        }
-
-        .highlight {
-            color: var(--text-main);
-            font-weight: 500;
-        }
+        h1 { font-size: 2.3rem; color: var(--accent); margin-bottom: 1.2rem; }
+        h2 { font-size: 1.75rem; color: var(--text-main); margin: 2.2rem 0 0.8rem; }
+        p { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 1.2rem; }
+        .highlight { color: var(--text-main); font-weight: 500; }
 
         .lenses-grid {
             display: grid;
@@ -221,10 +276,10 @@
         }
 
         .lens-item {
-            background: rgba(0, 0, 0, 0.22);
+            background: rgba(255, 255, 255, 0.06);
             padding: 1.3rem;
-            border-radius: 10px;
-            border-left: 3px solid var(--accent);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .lens-item h3 {
@@ -234,64 +289,201 @@
             margin-bottom: 0.4rem;
         }
 
-        .lens-item p {
-            font-size: 0.92rem;
-            margin-bottom: 0;
-        }
+        .lens-item p { font-size: 0.92rem; margin-bottom: 0; }
 
         footer {
+            position: relative;
+            z-index: 2;
             text-align: center;
-            padding: 2rem;
+            padding: 1.5rem 1rem 2.5rem;
             color: var(--text-muted);
             font-size: 0.85rem;
-            opacity: 0.7;
+            opacity: 0.75;
         }
     </style>
 </head>
 <body>
+   
 
-    <header>
-        <div class="logo">iradka.com</div>
-        <div class="subtitle">Fotografia s dušou, bez zbytočnej ostrosti</div>
-    </header>
+    <!-- Presný preklad tvojich hodnôt z Photoshopu (Frosted Glass) -->
+    <svg style="display: none;">
+        <filter id="photoshop-frosted-glass">
+            <feTurbulence type="fractalNoise" baseFrequency="0.18" numOctaves="3" seed="2" result="frostedNoise" />
+            <feDisplacementMap in="SourceGraphic" in2="frostedNoise" scale="5" xChannelSelector="R" yChannelSelector="G"     result="distorted" />
+            <feGaussianBlur in="distorted" stdDeviation="1.3" />
+        </filter>
+    </svg>
 
-    <section class="gallery-section">
-        <div class="hint" id="hint">Nabeňte kurzorom na fotky a točte kolieskom myši (alebo kliknite)</div>
+
+
+    <div class="ambient-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="page-wrapper">
+        <div class="olive-triangle"></div>
+
+        <main class="glass-container">
+            <header>
+                <div class="logo">iRadka.com</div>
+                <div class="subtitle">Fotografia s dušou, bez prehnanej superostrosti</div>
+            </header>
+
+            <section class="gallery-section">
+                <div class="hint">Nabehni myšou na fotky a toč kolieskom  (alebo klikni)</div>
+                
+                <div class="photo-stack" id="photoStack">
+                    <div class="photo-card">
+                        <img src="fotky/foto1.jpg" alt="Fotka 1">
+                        <div class="photo-caption"><span>Ranná hmla a staré sklo</span><span>01 / 04</span></div>
+                    </div>
+                    <div class="photo-card">
+                        <img src="fotky/foto2.jpg" alt="Fotka 2">
+                        <div class="photo-caption"><span>Pohľad, ktorý nereže</span><span>02 / 04</span></div>
+                    </div>
+                    <div class="photo-card">
+                        <img src="fotky/foto3.jpg" alt="Fotka 3">
+                            <div class="photo-caption"><span>Neostrosť ako emócia</span><span>03 / 04</span></div>
+                    </div>
+                    <div class="photo-card">
+                        <img src="fotky/foto4.jpg" alt="Fotka 4">
+                        <div class="photo-caption"><span>Svetlo v izbe</span><span>04 / 04</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="story-section">
+                <div class="story-inner-glass">
+                    <h1>Prečo nerobím fotky, ktoré sa zarezávajú do očných buliev</h1>
+                    <p>
+                        Dnešný digitálny svet je posadnutý dokonalou ostrosťou. Moderné objektívy dokážu spočítať každú mihalnicu a každý pór na tvári s chirurgickou presnosťou. Lenže ľudské oko – a najmä ľudská spomienka – takto nefunguje.
+                    </p>
+                    <p>
+                        Moja fotografia ide opačným smerom. Hľadám <span class="highlight">mäkkosť, citlivosť a atmosféru</span>. Chcem, aby ste sa na fotku pozerali s pokojom, nie aby vás jej ostrosť rezala do očí.
+                    </p>
+
+                    <h2>Moje objektívy a prečo ich milujem</h2>
+                    <p>
+                        Namiesto sterilných moderných skiel siaham po objektívoch s charakterom, starých manuálnych sklách a špeciálnych konštrukciách, ktoré kreslia svetlo ako štetec na plátno.
+                    </p>
+
+                    <div class="lenses-grid">
+                        <div class="lens-item">
+                            <h3>Staré manuálne sklá (Vintage)</h3>
+                            <p>Majú vlastné chyby, jemný závoj v protisvetle a krémové rozostrenie pozadia, ktoré nenapodobní žiadny filter.</p>
+                        </div>
+                        <div class="lens-item">
+                            <h3>Mäkkokresliace objektívy</h3>
+                            <p>Zjemňujú prechody medzi svetlom a tieňom. Dodávajú portrétom aj krajine snovú, takmer maliarsku citlivosť.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer>
+                © 2026 iradka.com — Vytvorené s citom pre svetlo
+            </footer>
+        </main>
+    </div>
+
+        <script>
+        const stack = document.getElementById('photoStack');
+        let cards = Array.from(stack.querySelectorAll('.photo-card'));
+        let isAnimating = false;
         
-        <div class="photo-stack" id="photoStack">
-            <!-- Fotky sú zatiaľ ukážkové, ľahko ich vymeníme za vaše -->
-            <div class="photo-card" data-index="0">
-                <img src="https://unsplash.com" alt="Mäkké svetlo">
-                <div class="photo-caption"><span>Ranná hmla a staré sklo</span><span>01 / 04</span></div>
-            </div>
-            <div class="photo-card" data-index="1">
-                <img src="https://unsplash.com" alt="Portrét s dušou">
-                <div class="photo-caption"><span>Pohľad, ktorý nereže</span><span>02 / 04</span></div>
-            </div>
-            <div class="photo-card" data-index="2">
-                <img src="https://unsplash.com" alt="Ticho a priestor">
-                <div class="photo-caption"><span>Neostrosť ako emócia</span><span>03 / 04</span></div>
-            </div>
-            <div class="photo-card" data-index="3">
-                <img src="https://unsplash.com" alt="Teplé tóny">
-                <div class="photo-caption"><span>Svetlo v izbe</span><span>04 / 04</span></div>
-            </div>
-        </div>
-    </section>
+        const baseRotations = [-2, 3, -4, 2.5];
+        const ruffledTransforms = [
+            { x: -16, y: -5, rot: -6 },
+            { x: 20,  y: -3, rot: 7 },
+            { x: -12, y: 6,  rot: -8 },
+            { x: 14,  y: 8,  rot: 6 }
+        ];
 
-    <section class="story-section">
-        <div class="story-card">
-            <h1>Prečo nerobím fotky, ktoré sa zarezávajú do očných buliev</h1>
-            <p>
-                Dnešný digitálny svet je posadnutý dokonalou ostrosťou. Moderné objektívy dokážu spočítať každú mihalnicu a každý pór na tvári s chirurgickou presnosťou. Lenže ľudské oko – a najmä ľudská spomienka – takto nefunguje.
-            </p>
-            <p>
-                Moja fotografia ide opačným smerom. Hľadám <span class="highlight">mäkkosť, citlivosť a atmosféru</span>. Chcem, aby ste sa na fotku pozerali s pokojom, nie aby vás jej ostrosť rezala do očí.
-            </p>
+        function updateStackLayout() {
+            cards.forEach((card, position) => {
+                const rot = baseRotations[position % baseRotations.length];
+                card.style.setProperty('--rot', `${rot}deg`);
+                
+                if (!card.classList.contains('tucking-under') && !card.classList.contains('pulling-up')) {
+                    const scale = 1 - (position * 0.025);
+                    const translateY = position * 6;
+                    card.style.zIndex = cards.length - position;
+                    card.style.transform = `translateY(${translateY}px) rotate(${rot}deg) scale(${scale})`;
+                }
+            });
+        }
 
-            <h2>Moje objektívy a prečo ich milujem</h2>
-            <p>
-                Namiesto sterilných moderných skiel siaham po objektívoch s charakterom, starých manuálnych sklách a špeciálnych konštrukciách, ktoré kreslia svetlo ako štetec na plátno.
-            </p>
+        stack.addEventListener('mouseenter', () => {
+            if (isAnimating) return;
 
-            <div class="lenses-grid">
+            cards.forEach((card, position) => {
+                const ruffle = ruffledTransforms[position % ruffledTransforms.length];
+                const scale = 1 - (position * 0.02);
+                card.style.transform = `translate(${ruffle.x}px, ${ruffle.y}px) rotate(${ruffle.rot}deg) scale(${scale})`;
+            });
+
+            setTimeout(() => {
+                if (!isAnimating) {
+                    updateStackLayout();
+                }
+            }, 350);
+        });
+
+        // Pohyb NADOL: vrchná fotka ide naspodok
+        function cycleNextPhoto() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const topCard = cards.at(0);
+            topCard.classList.add('tucking-under');
+            cards.push(cards.shift());
+
+            setTimeout(() => {
+                topCard.classList.remove('tucking-under');
+                updateStackLayout();
+                isAnimating = false;
+            }, 720);
+        }
+
+        // Pohyb NAHOR: spodná fotka sa vráti späť navrch
+        function cyclePrevPhoto() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const bottomCard = cards.at(-1);
+            bottomCard.classList.add('pulling-up');
+            cards.unshift(cards.pop());
+
+            setTimeout(() => {
+                bottomCard.classList.remove('pulling-up');
+                updateStackLayout();
+                isAnimating = false;
+            }, 720);
+        }
+
+        // Rozpoznanie smeru kolieska myši
+        stack.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY > 0) {
+                cycleNextPhoto(); // Koliesko nadol = ďalšia fotka
+            } else if (e.deltaY < 0) {
+                cyclePrevPhoto(); // Koliesko nahor = predchádzajúca fotka
+            }
+        }, { passive: false });
+
+        // Kliknutie ľavým tlačidlom posúva vždy dopredu
+        stack.addEventListener('click', (e) => {
+            e.preventDefault();
+            cycleNextPhoto();
+        });
+
+        updateStackLayout();
+    </script>
+
+
+
+</body>
+</html>
+
