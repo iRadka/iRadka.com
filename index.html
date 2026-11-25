@@ -180,75 +180,61 @@
             text-align: center;
         }
 
-        .photo-stack {
+        /* Galéria: pevný priestor pre štos v oboch orientáciách. */
+        .photo-stage {
             position: relative;
-            width: 690px;
-            height: 460px;
-            max-width: 86vw;
+            width: min(690px, 100%);
+            aspect-ratio: 1;
+            flex-shrink: 0;
             margin: 0 auto;
+        }
+        .photo-stack {
+            position: absolute;
+            left: 50%; top: 50%;
+            width: 100%; height: 66.6667%;
+            transform: translate(-50%, -50%) rotate(0deg);
+            transition: transform .65s cubic-bezier(.22,1,.36,1);
             cursor: grab;
             overflow-anchor: none;
+            isolation: isolate;
         }
-
-        .photo-stack:active {
-            cursor: grabbing;
-        }
-
+        .photo-stack.is-portrait { transform: translate(-50%, -50%) rotate(90deg); }
+        .photo-stack:active { cursor: grabbing; }
         .photo-card {
             position: absolute;
             inset: 0;
-            background: var(--paper);
-            padding: 12px;
             border-radius: 3px;
-            box-shadow: 0 18px 40px rgba(18, 3, 8, 0.55), 0 2px 6px rgba(0, 0, 0, 0.2);
-            transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+            background: var(--paper);
+            box-shadow: 0 18px 40px rgba(18,3,8,.55), 0 2px 6px rgba(0,0,0,.2);
+            transition: transform .45s cubic-bezier(.22,1,.36,1);
             user-select: none;
-            will-change: transform;
         }
-
-        .photo-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            pointer-events: none;
-        }
-
-        .photo-caption {
+        .photo-face {
             position: absolute;
-            bottom: 14px;
-            left: 18px;
-            right: 18px;
-            font-family: 'Cormorant Garamond', serif;
-            font-style: italic;
-            font-size: 1.05rem;
-            color: #fdf6f8;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
-            display: flex;
-            justify-content: space-between;
-            pointer-events: none;
+            top: 50%; left: 50%;
+            width: 100%; height: 100%;
+            transform: translate(-50%, -50%);
+            padding: clamp(4px, 1.2vw, 12px);
+            background: var(--paper);
+            border-radius: 3px;
         }
-
-        .photo-card.tucking-under {
-            animation: tuckUnder 0.75s cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
+        .photo-card.is-portrait .photo-face {
+            width: 66.6667%; height: 150%;
+            transform: translate(-50%, -50%) rotate(-90deg);
         }
-
-        @keyframes tuckUnder {
-            0% { transform: translate(0, 0) rotate(var(--rot)) scale(1); z-index: 20; }
-            45% { transform: translate(115%, -20px) rotate(14deg) scale(0.96); z-index: 20; }
-            50% { z-index: 0; }
-            100% { transform: translate(0, 8px) rotate(var(--rot)) scale(0.94); z-index: 0; }
+        .photo-card img {
+            width: 100%; height: 100%; object-fit: contain;
+            display: block; pointer-events: none;
         }
-
-        .photo-card.pulling-up {
-            animation: pullFromBottom 0.75s cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
+        .photo-caption {
+            position: absolute; bottom: 14px; left: 18px; right: 18px;
+            font-family: 'Cormorant Garamond', serif; font-style: italic;
+            font-size: clamp(.65rem, 1.5vw, 1.05rem); color: #fdf6f8;
+            text-shadow: 0 1px 4px rgba(0,0,0,.9);
+            display: flex; justify-content: space-between; pointer-events: none;
         }
-
-        @keyframes pullFromBottom {
-            0% { transform: translate(0, 8px) rotate(var(--rot)) scale(0.94); z-index: 0; }
-            45% { transform: translate(115%, -20px) rotate(14deg) scale(0.96); z-index: 0; }
-            50% { z-index: 25; }
-            100% { transform: translate(0, 0) rotate(var(--rot)) scale(1); z-index: 25; }
+        @media (prefers-reduced-motion: reduce) {
+            .photo-stack, .photo-card { transition: none; }
         }
 
         h1, h2, h3 {
@@ -277,32 +263,536 @@
             font-size: 0.85rem;
             opacity: 0.75;
         }
-                /* ASYMETRICKÉ ROZLOŽENIE SPODNÝCH ČLÁNKOV (koniec šablónovej symetrie) */
-        .story-card {
-            max-width: 760px;
-            margin-left: 2%;
-            margin-right: auto;
+                /* OBLASŤ ROZPADNUTEJ TABULE NA 7 SAMOSTATNÝCH ČREPOV */
+        .shattered-table {
+            position: relative;
+            width: 100%;
+            max-width: 1140px;
+            margin: 1rem auto 3rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 26px 28px;
         }
 
-        .asymmetric-lenses {
+        /* Obal črepu: Čistý kontajner bez filtrov */
+        .shard-wrap {
+            position: relative;
+            z-index: 2;
             display: flex;
-            flex-direction: column;
-            gap: 2rem;
-            margin-top: -1rem;
         }
 
-        .lens-card-right {
-            max-width: 620px;
-            margin-left: auto;
-            margin-right: 3%;
+        .shard-wrap-full {
+            grid-column: 1 / -1;
         }
 
-        .lens-card-left {
-            max-width: 640px;
-            margin-left: 6%;
-            margin-right: auto;
-            margin-top: -1.5rem;
+        /* VRSTVA 1 (RÁM BEZ VÝPLNE): Vrhá vonkajší tieň a tvorí svetelnú hranu na obruse */
+        .shard-shadow {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            overflow: visible;
         }
+
+        .shard-shadow svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        /* VRSTVA 2 (ČREP S VÝPLŇOU): Čisté guličkové dymové sklo bez vnútorných fľakov */
+        .glass-shard {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            padding: 2.4rem 2.2rem;
+            cursor: pointer;
+            backdrop-filter: url(#photoshop-frosted-glass);
+            -webkit-backdrop-filter: url(#photoshop-frosted-glass);
+            border: none;
+            box-shadow: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .glass-shard:hover {
+            border-color: rgba(244, 182, 194, 0.65);
+        }
+
+        /* Reálne spomienky položené na obruse pod sklenenými črepmi */
+        .table-memorabilia {
+            position: absolute;
+            z-index: 1;
+            pointer-events: none;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.65);
+        }
+
+        /* Stará fotka s výrazným zúbkovaným okrajom */
+        .scalloped-photo {
+    position: absolute;
+    top: 22%;
+    left: 33%;
+    width: 220px;
+    height: 160px;
+    padding: 12px;
+    transform: rotate(-8deg);
+
+    background: linear-gradient(
+        115deg,
+        #d2c09a 0%,
+        #f2e7cf 25%,
+        #e4d5b7 58%,
+        #ccb68c 100%
+    );
+
+    /* Jemné výrezy po všetkých štyroch stranách */
+    mask-image:
+        radial-gradient(circle at 5px 0,
+            transparent 2.5px, black 3px),
+        radial-gradient(circle at 5px 100%,
+            transparent 2.5px, black 3px),
+        radial-gradient(circle at 0 5px,
+            transparent 2.5px, black 3px),
+        radial-gradient(circle at 100% 5px,
+            transparent 2.5px, black 3px);
+
+    mask-size:
+        10px 100%,
+        10px 100%,
+        100% 10px,
+        100% 10px;
+
+    mask-repeat:
+        repeat-x,
+        repeat-x,
+        repeat-y,
+        repeat-y;
+
+    mask-composite: intersect;
+}
+.scalloped-photo::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+
+    background:
+        radial-gradient(
+            ellipse at 8% 12%,
+            rgba(125, 88, 42, 0.16),
+            transparent 34%
+        ),
+        radial-gradient(
+            ellipse at 92% 88%,
+            rgba(120, 82, 36, 0.20),
+            transparent 36%
+        );
+}
+
+        .scalloped-photo img {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: sepia(0.35) contrast(0.92);
+}
+
+        /* Stará pohľadnica posunutá mimo textov */
+        .vintage-postcard {
+            bottom: 11%;
+            left: 34%;
+            width: 230px;
+            height: 145px;
+            background: #e8dcc5;
+            color: #4a3b32;
+            padding: 14px;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 0.95rem;
+            border: 1px solid #cbb99b;
+            transform: rotate(7deg);
+        }
+
+        .shard-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent);
+            margin-bottom: 0.6rem;
+            opacity: 0.85;
+        }
+
+        .shard-more {
+            display: inline-block;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            opacity: 0.8;
+            border-bottom: 1px solid rgba(244, 182, 194, 0.4);
+        }
+
+        /* SVETELNÉ TIEŇOVANIE, TVARY A TRVALÉ NAKLONENIE PRE VŠETKÝCH 7 ČREPOV */
+        .shard-1 {
+            border-radius: 24px 0 0 0;
+            background-image: linear-gradient(135deg, rgba(25, 5, 12, 0.45) 0%, rgba(35, 8, 18, 0.32) 55%, rgba(255, 255, 255, 0.02) 100%);
+            clip-path: polygon(
+                0% 6%, 2% 2%, 6% 0%, 94% 0%, 97% 2%, 98% 6%,
+                96% 18%, 95% 30%, 97% 44%, 99% 56%, 97% 68%, 94% 80%, 95% 91%, 93% 96%, 89% 97%,
+                75% 94%, 55% 97%, 35% 99%, 15% 96%, 4% 98%, 1% 96%, 0% 92%
+            );
+            transform: translate(-18px, -10px) rotate(2.8deg);
+        }
+
+        .shard-2 {
+            border-radius: 0 24px 0 0;
+            background-image: linear-gradient(135deg, rgba(35, 8, 18, 0.32) 0%, rgba(255, 255, 255, 0.02) 55%, rgba(255, 255, 255, 0.05) 100%);
+            clip-path: polygon(
+                5% 1%, 8% 0%, 96% 0%, 99% 2%, 100% 6%,
+                100% 93%, 99% 96%, 95% 97%, 
+                88% 94%, 82% 94%, 75% 97%, 
+                55% 99%, 35% 98%, 18% 95%, 10% 94%, 5% 97%, 3% 95%,
+                3% 88%, 5% 78%, 6% 68%, 4% 58%, 2% 48%, 1% 38%, 2% 28%, 4% 18%, 5% 10%, 3% 4%
+            );
+            padding-left: 3rem;
+            transform: translate(22px, 14px) rotate(-3.2deg);
+        }
+
+        .shard-3 {
+            background-image: linear-gradient(135deg, rgba(35, 8, 18, 0.35) 0%, rgba(255, 255, 255, 0.03) 55%, rgba(255, 255, 255, 0.06) 100%);
+            clip-path: polygon(
+                0% 5%, 25% 2%, 52% 6%, 78% 1%, 96% 4%,
+                99% 28%, 94% 55%, 98% 80%, 95% 97%,
+                70% 93%, 42% 98%, 18% 94%, 0% 99%
+            );
+            transform: translate(-14px, 12px) rotate(2.6deg);
+        }
+
+        .shard-4 {
+            background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.06) 55%, rgba(255, 255, 255, 0.09) 100%);
+            clip-path: polygon(
+                4% 2%, 28% 7%, 55% 1%, 80% 5%, 100% 3%,
+                100% 98%, 74% 92%, 48% 97%, 22% 91%, 2% 96%,
+                6% 74%, 1% 48%, 5% 24%
+            );
+            padding-left: 3rem;
+            transform: translate(24px, -8px) rotate(2.7deg);
+        }
+
+        .shard-5 {
+            background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.06) 55%, rgba(255, 255, 255, 0.09) 100%);
+            clip-path: polygon(
+                0% 5%, 18% 2%, 40% 6%, 65% 2%, 88% 5%, 94% 4%, 97% 8%,
+                95% 28%, 98% 50%, 94% 72%, 96% 91%, 93% 96%,
+                72% 93%, 48% 98%, 24% 94%, 4% 97%, 0% 93%
+            );
+            transform: translate(-22px, 10px) rotate(-3.4deg);
+        }
+
+        .shard-6 {
+            background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.09) 50%, rgba(255, 255, 255, 0.13) 100%);
+            clip-path: polygon(
+                4% 3%, 22% 7%, 46% 2%, 70% 6%, 92% 3%, 98% 4%, 100% 8%,
+                100% 94%, 98% 97%, 76% 93%, 52% 98%, 26% 92%, 6% 97%, 2% 94%,
+                5% 74%, 2% 52%, 6% 28%, 3% 12%
+            );
+            padding-left: 3rem;
+            transform: translate(16px, 22px) rotate(2.5deg);
+        }
+
+        .shard-7 {
+            border-radius: 0 0 24px 24px;
+            background-image: linear-gradient(105deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.08) 55%, rgba(255, 255, 255, 0.13) 100%);
+            clip-path: polygon(
+                0% 12%, 16% 6%, 34% 13%, 50% 4%, 68% 12%, 85% 6%, 100% 12%,
+                100% 82%, 99% 93%, 97.5% 100%,
+                2.5% 100%, 1% 93%, 0% 82%
+            );
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2.6rem 2.5rem 1.8rem;
+            transform: translate(-6px, 18px) rotate(-1.3deg);
+        }
+
+
+        /* Keď sa črep pri skrolovaní jemne prisunie na miesto */
+       
+                    /* Keď črepy dosadnú na stôl, každý zostane mierne pootočený aj s písmom (podľa tvojho náčrtu) */
+          /* Nepravidelné, prirodzené rozhádzanie črepov po stole (každý inak odsunutý a naklonený) */
+                /* TRVALÉ NAKLONENIE A ROZHÁDZANIE VŠETKÝCH 7 ČREPOV (podľa tvojich žltých rámčekov) */
+        .shard-1 { transform: translate(-18px, -10px) rotate(2.8deg) !important; }
+        .shard-2 { transform: translate(22px, 14px) rotate(-3.2deg) !important; }
+               .shard-3 { transform: translate(-14px, 12px) rotate(2.6deg) !important; }
+        .shard-4 { transform: translate(24px, -8px) rotate(2.7deg) !important; }
+        .shard-5 { transform: translate(-22px, 10px) rotate(-3.4deg) !important; }
+        .shard-6 { transform: translate(16px, 22px) rotate(2.5deg) !important; }
+        .shard-7 { transform: translate(-6px, 18px) rotate(-1.3deg) !important; }
+
+        /* Pri nabehnutí myšou sa črep zľahka nadvihne, ale zostane vo svojom uhle */
+        .glass-shard:hover {
+          .glass-shard:hover {
+    box-shadow: none;
+}
+        }
+
+
+       
+
+        /* VYSÚVACIE VEĽKÉ ČÍTACIE SKLO Z BOKU + STMAVENIE STRÁNKY */
+        .reader-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(12, 2, 6, 0.82);
+            backdrop-filter: blur(4px);
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.45s ease;
+        }
+
+        .reader-backdrop.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .glass-drawer {
+            position: fixed;
+            top: 2.5vh;
+            right: -100%;
+            width: 780px;
+            max-width: 94vw;
+            height: 95vh;
+            z-index: 100;
+            border-radius: 24px;
+            background-image: linear-gradient(
+                -60deg,
+                rgba(255, 255, 255, 0.12) 0%,
+                rgba(38, 9, 20, 0.72) 50%,
+                rgba(18, 4, 10, 0.88) 100%
+            );
+            backdrop-filter: url(#photoshop-frosted-glass) blur(18px);
+            -webkit-backdrop-filter: url(#photoshop-frosted-glass) blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            box-shadow: -20px 0 60px rgba(0, 0, 0, 0.85);
+            padding: 3.5rem 3rem;
+            overflow-y: auto;
+            transition: right 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .glass-drawer.active {
+            right: 2.5vw;
+        }
+
+        .drawer-close {
+            position: sticky;
+            top: 0;
+            float: right;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--text-main);
+            font-size: 1.4rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.25s ease;
+        }
+
+        .drawer-close:hover {
+            background: rgba(244, 182, 194, 0.3);
+        }
+
+        /* Sklenená kartotéka v 7. črepe (Archív) */
+        .archive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .archive-item {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 14px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: transform 0.25s ease, border-color 0.25s ease;
+        }
+
+        .archive-item:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+        }
+
+        .archive-item img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+        }
+
+        /* VŠITÁ ČERVENÁ TEXTILNÁ VISAČKA V ROHU OBRUSU (KONTAKT) */
+        .fabric-tag {
+            position: fixed;
+            bottom: 36px;
+            left: 0;
+            z-index: 80;
+            display: flex;
+            align-items: stretch;
+            transform: translateX(-230px); /* V kľude vytŕča len úzky červený prúžok s nápisom KONTAKT */
+            transition: transform 0.5s cubic-bezier(0.34, 1.3, 0.64, 1);
+            cursor: pointer;
+            box-shadow: 4px 10px 24px rgba(0, 0, 0, 0.65);
+        }
+
+        .fabric-tag.pulled {
+            transform: translateX(0); /* Po kliknutí sa vytiahne celý prací lístok */
+        }
+
+        .tag-care-info {
+    position: relative;
+    width: 230px;
+    color: #2b2124;
+    padding: 1rem 1.2rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+
+    background-color: #f5efe6;
+
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255,255,255,0.18) 0px,
+            transparent 1px,
+            transparent 2px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(80,60,40,0.025) 0px,
+            transparent 1px,
+            transparent 3px
+        ),
+        linear-gradient(
+            115deg,
+            #e2d9ca 0%,
+            #f5efe5 18%,
+            #fffdf7 38%,
+            #e9e0d2 65%,
+            #f8f3eb 82%,
+            #d8cebf 100%
+        );
+
+    border-top: 1px dashed #b5a698;
+    border-bottom: 1px dashed #b5a698;
+
+    box-shadow:
+        inset 0 2px 3px rgba(255,255,255,0.45),
+        inset 0 -2px 4px rgba(60,40,20,0.12),
+        inset -5px 0 8px rgba(60,40,20,0.10);
+}
+.tag-care-info::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 2px;
+    width: 3px;
+
+    background: repeating-linear-gradient(
+        to bottom,
+        #b3a18b 0px,
+        #b3a18b 2px,
+        transparent 2px,
+        transparent 5px
+    );
+
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+        .tag-care-symbols {
+            display: flex;
+            gap: 10px;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid #d8ccbe;
+            color: #7a1c2e;
+        }
+
+       .tag-red-tab {
+    position: relative;
+    width: 38px;
+    color: #ffffff;
+
+    background-color: #9e1b32;
+
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255,255,255,0.09) 0px,
+            rgba(255,255,255,0.09) 1px,
+            transparent 1px,
+            transparent 3px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(0,0,0,0.16) 0px,
+            rgba(0,0,0,0.16) 1px,
+            transparent 1px,
+            transparent 2px
+        ),
+        linear-gradient(
+            90deg,
+            #6d1022 0%,
+            #a92039 20%,
+            #b52a42 55%,
+            #851529 100%
+        );
+
+    border-radius: 0 5px 5px 0;
+    border: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    padding: 12px 0;
+    user-select: none;
+
+    font-weight: 600;
+color: #f4eee5;
+
+text-shadow:
+    0.5px 0.5px 0px #ffffff,
+    -0.5px -0.5px 0px #bdb1a4,
+    1px 1.5px 1px rgba(0,0,0,0.65);
+
+    box-shadow:
+        inset 3px 0 5px rgba(0,0,0,0.35),
+        inset -1px 0 2px rgba(255,255,255,0.15);
+}
+.tag-red-tab::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1px dashed rgba(255,220,220,0.48);
+    border-left: none;
+    border-radius: 0 3px 3px 0;
+    pointer-events: none;
+}
     
 
     </style>
@@ -346,22 +836,56 @@
 
             <section class="glass-card gallery-card">
                 
-                <div class="photo-stack" id="photoStack">
-                    <div class="photo-card">
-                        <img src="fotky/foto1.jpg" alt="Fotka 1">
-                        <div class="photo-caption"><span>Ranná hmla a staré sklo</span><span>01 / 04</span></div>
-                    </div>
-                    <div class="photo-card">
-                        <img src="fotky/foto2.jpg" alt="Fotka 2">
-                        <div class="photo-caption"><span>Pohľad, ktorý nereže</span><span>02 / 04</span></div>
-                    </div>
-                    <div class="photo-card">
-                        <img src="fotky/foto3.jpg" alt="Fotka 3">
-                        <div class="photo-caption"><span>Neostrosť ako emócia</span><span>03 / 04</span></div>
-                    </div>
-                    <div class="photo-card">
-                        <img src="fotky/foto4.jpg" alt="Fotka 4">
-                        <div class="photo-caption"><span>Svetlo v izbe</span><span>04 / 04</span></div>
+                <div class="photo-stage">
+                    <div class="photo-stack" id="photoStack" tabindex="0" aria-label="Galéria fotografií. Šípky alebo koliesko myši menia fotografiu.">
+                        <div class="photo-card"><div class="photo-face">
+                            <img src="fotky/foto1.jpg" alt="Fotka 1">
+                            <div class="photo-caption"><span>Ranná hmla a staré sklo</span><span>01 / 12</span></div>
+                        </div></div>
+                        <div class="photo-card"><div class="photo-face">
+                            <img src="fotky/foto2.jpg" alt="Fotka 2">
+                            <div class="photo-caption"><span>Pohľad, ktorý nereže</span><span>02 / 12</span></div>
+                        </div></div>
+                        <div class="photo-card"><div class="photo-face">
+                            <img src="fotky/foto3.jpg" alt="Fotka 3">
+                            <div class="photo-caption"><span>Neostrosť ako emócia</span><span>03 / 12</span></div>
+                        </div></div>
+                        <div class="photo-card"><div class="photo-face">
+                            <img src="fotky/foto4.jpg" alt="Fotka 4">
+                            <div class="photo-caption"><span>Svetlo v izbe</span><span>04 / 12</span></div>
+                        </div></div>
+                        <div class="photo-card"><div class="photo-face">
+                            <img src="fotky/foto5.jpg" alt="Fotka 5">
+                            <div class="photo-caption"><span></span><span>05 / 12</span></div>
+                        </div></div>
+                        <div class="photo-card"><div class="photo-face">
+                            <img src="fotky/foto6.jpg" alt="Fotka 6">
+                            <div class="photo-caption"><span></span><span>06 / 12</span></div>
+                        </div></div>
+                        <div class="photo-card"><div class="photo-face">
+                            <img src="fotky/foto7.jpg" alt="Fotka 7">
+                            <div class="photo-caption"><span></span><span>07 / 12</span></div>
+                        </div></div>
+                        <div class="photo-card"><div class="photo-face">
+                            <img src="fotky/foto8.jpg" alt="Fotka 8">
+                            <div class="photo-caption"><span></span><span>08 / 12</span></div>
+                        </div></div>
+                        <div class="photo-card"><div class="photo-face">
+                            <img src="fotky/foto9.jpg" alt="Fotka 9">
+                            <div class="photo-caption"><span></span><span>09 / 12</span></div>
+                        </div></div>
+                        <div class="photo-card"><div class="photo-face">
+                            <img src="fotky/foto10.jpg" alt="Fotka 10">
+                            <div class="photo-caption"><span></span><span>10 / 12</span></div>
+                        </div></div>
+                        <div class="photo-card"><div class="photo-face">
+                            <img src="fotky/foto11.jpg" alt="Fotka 11">
+                            <div class="photo-caption"><span></span><span>11 / 12</span></div>
+                        </div></div>
+                        <div class="photo-card"><div class="photo-face">
+                            <img src="fotky/foto12.jpg" alt="Fotka 12">
+                            <div class="photo-caption"><span></span><span>12 / 12</span></div>
+                        </div></div>
                     </div>
                 </div>
                 <p style="margin-top: 2.6rem; margin-bottom: 0; font-size: 0.88rem; color: var(--text-main); opacity: 0.92; letter-spacing: 0.04em;">
@@ -371,28 +895,120 @@
             </section>
         </div>
 
-                <!-- Hlavný článok posunutý mierne vľavo -->
-        <article class="glass-card story-card">
-            <h1>Prečo nerobím fotky, ktoré sa zarezávajú do očných buliev</h1>
-            <p>
-                Dnešný digitálny svet je posadnutý dokonalou ostrosťou. Moderné objektívy dokážu spočítať každú mihalnicu a každý pór na tvári s chirurgickou presnosťou. Lenže ľudské oko – a najmä ľudská spomienka – takto nefunguje.
-            </p>
-            <p>
-                Moja fotografia ide opačným smerom. Hľadám <span class="highlight">mäkkosť, citlivosť a atmosféru</span>. Chcem, aby ste sa na fotku pozerali s pokojom, nie aby vás jej ostrosť rezala do očí.
-            </p>
-        </article>
-
-        <!-- Asymetricky rozhádzané karty objektívov -->
-        <section class="asymmetric-lenses">
-            <div class="glass-card lens-card-right">
-                <h3>Staré manuálne sklá (Vintage)</h3>
-                <p>Majú vlastné chyby, jemný závoj v protisvetle a krémové rozostrenie pozadia, ktoré nenapodobní žiadny digitálny filter.</p>
+                 <!-- ROZPADNUTÁ SKLENENÁ TABUĽA NA 7 ČREPOV + SPOMIENKY POD SKLOM -->
+        <section class="shattered-table" id="shatteredTable">
+            
+            <!-- Reálne predmety na burgundy obruse pod prasklinami -->
+            <div class="table-memorabilia scalloped-photo">
+                <img src="fotky/foto3.jpg" alt="Stará zúbkovaná fotka">
             </div>
-            <div class="glass-card lens-card-left">
-                <h3>Mäkkokresliace objektívy</h3>
-                <p>Zjemňujú prechody medzi svetlom a tieňom. Dodávajú portrétom aj krajine snovú, takmer maliarsku citlivosť.</p>
+            <div class="table-memorabilia vintage-postcard">
+                „Svetlo v starom okne nikdy netreba doostrovať...“<br>
+                <span style="font-size: 0.75rem; opacity: 0.7;">— Poznámka z archívu, 1984</span>
+            </div>
+
+            <!-- ČREP 1 -->
+            <div class="shard-wrap">
+                <div class="shard-shadow"></div>
+                <div class="glass-shard shard-1" onclick="openArticle(0)">
+                    <span class="shard-tag">01 / Príbeh stola</span>
+                    <h3>Prečo burgundy obrus a sklo</h3>
+                    <p>Nemá každý vlastnú pracovňu. Niekedy sa tvorba odohráva na jedálenskom stole, kde priateľkin starostlivo vybraný obrus zachraňuje pred nepozorným chlapom práve tabuľa skla...</p>
+                    <span class="shard-more">Otvoriť celý článok →</span>
+                </div>
+            </div>
+
+            <!-- ČREP 2 -->
+            <div class="shard-wrap">
+                <div class="shard-shadow"></div>
+                <div class="glass-shard shard-2" onclick="openArticle(1)">
+                    <span class="shard-tag">02 / Filozofia</span>
+                    <h3>Prečo nerobím fotky, ktoré režú do očí</h3>
+                    <p>Dnešný svet je posadnutý chirurgickou ostrosťou. Ľudská spomienka však funguje inak – je mäkká, jemne rozostrená a plná nálady...</p>
+                    <span class="shard-more">Otvoriť celý článok →</span>
+                </div>
+            </div>
+
+            <!-- ČREP 3 -->
+            <div class="shard-wrap">
+                <div class="shard-shadow"></div>
+                <div class="glass-shard shard-3" onclick="openArticle(2)">
+                    <span class="shard-tag">03 / Optika</span>
+                    <h3>Staré manuálne sklá (Vintage)</h3>
+                    <p>Majú vlastné chyby, jemný závoj v protisvetle a krémové rozostrenie pozadia, ktoré nenapodobní žiadny digitálny filter...</p>
+                    <span class="shard-more">Otvoriť celý článok →</span>
+                </div>
+            </div>
+
+            <!-- ČREP 4 -->
+            <div class="shard-wrap">
+                <div class="shard-shadow"></div>
+                <div class="glass-shard shard-4" onclick="openArticle(3)">
+                    <span class="shard-tag">04 / Svetlo</span>
+                    <h3>Mäkkokresliace objektívy</h3>
+                    <p>Zjemňujú prechody medzi svetlom a tieňom a dodávajú portrétom aj zátišiam maliarsku citlivosť...</p>
+                    <span class="shard-more">Otvoriť celý článok →</span>
+                </div>
+            </div>
+
+            <!-- ČREP 5 -->
+            <div class="shard-wrap">
+                <div class="shard-shadow"></div>
+                <div class="glass-shard shard-5" onclick="openArticle(4)">
+                    <span class="shard-tag">05 / Proces</span>
+                    <h3>Fotopapier 10 × 15 cm v ruke</h3>
+                    <p>Prečo má pre mňa obyčajná papierová pohľadnica s bielym rámikom väčšiu hodnotu než tisíc záberov v mobile...</p>
+                    <span class="shard-more">Otvoriť celý článok →</span>
+                </div>
+            </div>
+
+            <!-- ČREP 6 -->
+            <div class="shard-wrap">
+                <div class="shard-shadow"></div>
+                <div class="glass-shard shard-6" onclick="openArticle(5)">
+                    <span class="shard-tag">06 / Spolupráca</span>
+                    <h3>Autorské weby bez šablónového balastu</h3>
+                    <p>Páči sa vám tento pokojný svet? Navrhujem podobné osobné portfóliá a firemné vizitky na mieru – zásadne bez e-shopov...</p>
+                    <span class="shard-more">Otvoriť celý článok →</span>
+                </div>
+            </div>
+
+            <!-- ČREP 7 (Archív - sklenená kartotéka) -->
+            <div class="shard-wrap shard-wrap-full">
+                <div class="shard-shadow"></div>
+                <div class="glass-shard shard-7" onclick="openArchive()">
+                    <div>
+                        <span class="shard-tag">07 / Kartotéka</span>
+                        <h3 style="margin-bottom: 0;">Archív starších článkov a poznámok</h3>
+                    </div>
+                    <span class="shard-more" style="margin-top: 0;">Vysunúť kartotéku →</span>
+                </div>
             </div>
         </section>
+
+  
+
+    <!-- VYSÚVACIA SKLENENÁ TABUĽA Z BOKU + STMAVENIE STRÁNKY -->
+    <div class="reader-backdrop" id="readerBackdrop" onclick="closeDrawer()"></div>
+    <aside class="glass-drawer" id="glassDrawer">
+        <button class="drawer-close" onclick="closeDrawer()" title="Zavrieť (Esc)">×</button>
+        <div id="drawerContent"></div>
+    </aside>
+
+    <!-- VŠITÁ ČERVENÁ TEXTILNÁ VISAČKA V ROHU OBRUSU -->
+    <div class="fabric-tag" id="fabricTag" onclick="this.classList.toggle('pulled')">
+        <div class="tag-care-info">
+            <div class="tag-care-symbols" title="Pokyny na údržbu">
+                <span>⨂ Bez ostrosti</span>
+                <span>☀ Mäkké svetlo</span>
+            </div>
+            <strong>iRadka.com</strong><br>
+            Autorská fotografia & dizajn<br>
+            <a href="mailto:info@iradka.com" style="color: #9e1b32; text-decoration: none; font-weight: 500;" onclick="event.stopPropagation()">info@iradka.com</a>
+        </div>
+        <div class="tag-red-tab">KONTAKT</div>
+    </div>
+
 
 
      
@@ -405,90 +1021,240 @@
         const stack = document.getElementById('photoStack');
         let cards = Array.from(stack.querySelectorAll('.photo-card'));
         let isAnimating = false;
-        
+        let galleryReady = false;
         const baseRotations = [-2, 3, -4, 2.5];
-        const ruffledTransforms = [
-            { x: -16, y: -5, rot: -6 },
-            { x: 20,  y: -3, rot: 7 },
-            { x: -12, y: 6,  rot: -8 },
-            { x: 14,  y: 8,  rot: 6 }
+        const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+        function paperTransform(position) {
+            // Hrúbka rastie s počtom fotiek, ale štos zostáva na skle.
+            const depth = Math.min(position * 3, 42);
+            const scale = 1 - Math.min(position * .006, .045);
+            return `translateY(${depth}px) rotate(${baseRotations[position % 4]}deg) scale(${scale})`;
+        }
+        function updateStackLayout(skip = null) {
+            cards.forEach((card, position) => {
+                card.style.zIndex = cards.length - position;
+                if (card !== skip) card.style.transform = paperTransform(position);
+                card.setAttribute('aria-hidden', position === 0 ? 'false' : 'true');
+            });
+            stack.classList.toggle('is-portrait', cards[0].classList.contains('is-portrait'));
+        }
+        async function prepareGallery() {
+            await Promise.all(cards.map(async (card, i) => {
+                const img = card.querySelector('img');
+                try { await img.decode(); } catch (e) { /* Neplatný obrázok nezastaví galériu. */ }
+                card.classList.toggle('is-portrait', img.naturalHeight > img.naturalWidth);
+                card.querySelector('.photo-caption span:last-child').textContent =
+                    `${String(i+1).padStart(2,'0')} / ${String(cards.length).padStart(2,'0')}`;
+            }));
+            updateStackLayout();
+            galleryReady = true;
+        }
+        async function cyclePhoto(direction) {
+            if (!galleryReady || isAnimating || cards.length < 2) return;
+            isAnimating = true;
+            const moving = direction > 0 ? cards[0] : cards[cards.length-1];
+            const start = direction > 0 ? 0 : cards.length-1;
+            const end = direction > 0 ? cards.length-1 : 0;
+            const out = 'translate(112%, -15px) rotate(14deg) scale(.97)';
+            const duration = reducedMotion.matches ? 0 : 340;
+            moving.style.zIndex = direction > 0 ? cards.length+1 : 0;
+            const first = moving.animate([{transform:paperTransform(start)}, {transform:out}],
+                {duration, easing:'ease-in-out', fill:'forwards'});
+            try {
+                await first.finished;
+                if (direction > 0) cards.push(cards.shift());
+                else cards.unshift(cards.pop());
+                updateStackLayout(moving);
+                moving.style.transform = paperTransform(end);
+                first.cancel();
+                const second = moving.animate([{transform:out}, {transform:paperTransform(end)}],
+                    {duration: reducedMotion.matches ? 0 : 650, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards'});
+                await second.finished;
+                second.cancel();
+            } finally {
+                first.cancel();
+                updateStackLayout();
+                isAnimating = false;
+            }
+        }
+        stack.addEventListener('wheel', e => {
+            if (!e.deltaY) return;
+            e.preventDefault(); cyclePhoto(e.deltaY > 0 ? 1 : -1);
+        }, {passive:false});
+        stack.addEventListener('click', () => cyclePhoto(1));
+        stack.addEventListener('keydown', e => {
+            if (['ArrowRight','ArrowDown','ArrowLeft','ArrowUp','Enter',' '].includes(e.key)) {
+                e.preventDefault(); cyclePhoto(['ArrowLeft','ArrowUp'].includes(e.key) ? -1 : 1);
+            }
+        });
+        stack.addEventListener('mouseenter', () => {
+            if (!galleryReady || isAnimating || reducedMotion.matches) return;
+            cards.forEach((card, i) => {
+                card.style.transform = `${paperTransform(i)} rotate(${i%2 ? 3 : -3}deg)`;
+            });
+            setTimeout(() => { if (!isAnimating) updateStackLayout(); }, 350);
+        });
+        // DÁTA PRE 6 ČLÁNKOV A KARTOTÉKU ARCHÍVU (neskôr si ich ľubovoľne prepíšeš)
+        const articlesData = [
+            {
+                tag: "01 / Príbeh stola",
+                title: "Prečo burgundy obrus a ochranné sklo",
+                body: `<p>Nemá každý samostatný pracovný stôl alebo ateliér. Niekedy sa všetka práca, triedenie fotiek a večerné písanie musí starostlivo a čisto zmestiť na jedálenský stôl.</p>
+                       <p>Na ňom leží priateľkin starostlivo vybraný burgundy obrus – a na ňom tabuľa reliéfneho skla, ktorá ho chráni pred nepozorným chlapom s foťákmi, objektívmi a šálkou kávy. Presne tak vznikol tento digitálny stôl: všetko máte položené pred sebou pod sklom, nič vám neutečie do neprehľadného menu.</p>`
+            },
+            {
+                tag: "02 / Filozofia",
+                title: "Prečo nerobím fotky, ktoré sa zarezávajú do očných buliev",
+                body: `<p>Dnešný digitálny svet je posadnutý chirurgickou ostrosťou. Moderné objektívy dokážu spočítať každú mihalnicu a každý pór na tvári. Lenže ľudská spomienka takto nefunguje.</p>
+                       <p>Moja fotografia ide opačným smerom. Hľadám mäkkosť, citlivosť a atmosféru. Chcem, aby ste sa na fotku pozerali s pokojom, nie aby vás jej ostrosť rezala do očí.</p>`
+            },
+            {
+                tag: "03 / Optika",
+                title: "Staré manuálne sklá (Vintage)",
+                body: `<p>Staré objektívy majú vlastný charakter, jemný závoj v protisvetle a krémové rozostrenie pozadia, ktoré nenapodobní žiadny digitálny filter.</p>`
+            },
+            {
+                tag: "04 / Svetlo",
+                title: "Mäkkokresliace objektívy",
+                body: `<p>Zjemňujú prechody medzi svetlom a tieňom. Dodávajú portrétom aj krajine snovú, takmer maliarsku citlivosť.</p>`
+            },
+            {
+                tag: "05 / Proces",
+                title: "Fotopapier 10 × 15 cm v ruke",
+                body: `<p>Keď držíte v ruke skutočnú fotku s bielym okrajom, pozeráte sa na ňu pomalšie. Presne tento pocit som chcel preniesť aj do hornej galérie na tejto stránke.</p>`
+            },
+            {
+                tag: "06 / Spolupráca",
+                title: "Autorské weby bez šablónového balastu",
+                body: `<p>Ak vás oslovil tento spôsob rozprávania príbehu na jednej obrazovke, rád navrhnem podobný autorský web aj pre vaše portfólio, ateliér alebo menšiu firmu.</p>
+                       <p>Všetko staviam čisto na mieru, rýchlo a bez zbytočných e-shopových šablón. Stačí zatiahnuť za červenú visačku vľavo dole a ozvať sa.</p>`
+            }
         ];
 
-        function updateStackLayout() {
-            cards.forEach((card, position) => {
-                const rot = baseRotations[position % baseRotations.length];
-                card.style.setProperty('--rot', `${rot}deg`);
-                
-                if (!card.classList.contains('tucking-under') && !card.classList.contains('pulling-up')) {
-                    const scale = 1 - (position * 0.025);
-                    const translateY = position * 6;
-                    card.style.zIndex = cards.length - position;
-                    card.style.transform = `translateY(${translateY}px) rotate(${rot}deg) scale(${scale})`;
-                }
-            });
+        const archiveData = [
+            { title: "Ako som objavil čaro starého Heliosu", img: "fotky/foto1.jpg", text: "Krátka spomienka na prvé fotenie v rannej hmle so starým manuálnym objektívom..." },
+            { title: "Prečo nefotím na pravé poludnie", img: "fotky/foto2.jpg", text: "O tom, ako tvrdé poludňajšie slnko berie veciam ich jemnosť a tieň..." },
+            { title: "Poznámky zo starého fotoalbumu", img: "fotky/foto4.jpg", text: "Čo som sa naučil pri prezeraní starých rodinných pohľadníc s vlnovkovým okrajom..." }
+        ];
+
+        function openArticle(index) {
+            const art = articlesData[index];
+            document.getElementById('drawerContent').innerHTML = `
+                <span class="shard-tag">${art.tag}</span>
+                <h1 style="margin-bottom: 1.5rem;">${art.title}</h1>
+                ${art.body}
+            `;
+            document.getElementById('readerBackdrop').classList.add('active');
+            document.getElementById('glassDrawer').classList.add('active');
         }
 
-        stack.addEventListener('mouseenter', () => {
-            if (isAnimating) return;
+        function openArchive() {
+            const itemsHtml = archiveData.map((item, idx) => `
+                <div class="archive-item" onclick="openArchiveItem(${idx})">
+                    <img src="${item.img}" alt="${item.title}">
+                    <h3 style="font-size: 1.2rem; margin-bottom: 0;">${item.title}</h3>
+                </div>
+            `).join('');
 
-            cards.forEach((card, position) => {
-                const ruffle = ruffledTransforms[position % ruffledTransforms.length];
-                const scale = 1 - (position * 0.02);
-                card.style.transform = `translate(${ruffle.x}px, ${ruffle.y}px) rotate(${ruffle.rot}deg) scale(${scale})`;
-            });
+            document.getElementById('drawerContent').innerHTML = `
+                <span class="shard-tag">07 / Kartotéka</span>
+                <h1>Archív článkov</h1>
+                <p>Kliknite na kartu pre zobrazenie staršieho záznamu:</p>
+                <div class="archive-grid">${itemsHtml}</div>
+            `;
+            document.getElementById('readerBackdrop').classList.add('active');
+            document.getElementById('glassDrawer').classList.add('active');
+        }
 
-            setTimeout(() => {
-                if (!isAnimating) {
-                    updateStackLayout();
-                }
-            }, 350);
+        function openArchiveItem(idx) {
+            const item = archiveData[idx];
+            document.getElementById('drawerContent').innerHTML = `
+                <button onclick="openArchive()" style="background:none; border:none; color:var(--accent); cursor:pointer; margin-bottom:1rem; font-size:0.95rem;">← Späť do kartotéky</button>
+                <h1>${item.title}</h1>
+                <img src="${item.img}" style="width:100%; max-height:320px; object-fit:cover; border-radius:12px; margin: 1rem 0 1.5rem;">
+                <p>${item.text}</p>
+            `;
+        }
+
+        function closeDrawer() {
+            document.getElementById('readerBackdrop').classList.remove('active');
+            document.getElementById('glassDrawer').classList.remove('active');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDrawer();
         });
 
-        function cycleNextPhoto() {
-            if (isAnimating) return;
-            isAnimating = true;
+        // Jemné dosadnutie 7 črepov pri skrolovaní (žiaden násilný pohyb)
+        const shardObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('settled');
+                }
+            });
+        }, { threshold: 0.15 });
 
-            const topCard = cards.at(0);
-            topCard.classList.add('tucking-under');
-            cards.push(cards.shift());
+        document.querySelectorAll('.glass-shard').forEach(shard => shardObserver.observe(shard));
 
-            setTimeout(() => {
-                topCard.classList.remove('tucking-under');
-                updateStackLayout();
-                isAnimating = false;
-            }, 720);
+        // Presny SVG ram bez vyplne, odvodený z polygonu kazdeho crepu.
+        // Maska odstrani tien z vnutra crepu, ponecha ho iba vonku.
+        function drawShardFrame(shard, index) {
+            const frame = shard.parentElement.querySelector('.shard-shadow');
+            const style = getComputedStyle(shard);
+            const w = shard.offsetWidth;
+            const h = shard.offsetHeight;
+            const polygon = style.clipPath.match(/^polygon\((.*)\)$/);
+            if (!polygon || !w || !h) return;
+            const points = polygon[1].split(',').map(pair => {
+                const [x, y] = pair.trim().split(/\s+/).map(parseFloat);
+                return `${x * w / 100},${y * h / 100}`;
+            }).join(' ');
+            const id = `shard-frame-${index}`;
+            frame.style.transform = style.transform;
+            frame.style.transformOrigin = style.transformOrigin;
+            frame.style.width = `${w}px`;
+            frame.style.height = `${h}px`;
+            frame.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" aria-hidden="true">
+                <defs>
+                    <mask id="${id}-outside" maskUnits="userSpaceOnUse" x="-100" y="-100" width="${w+200}" height="${h+200}">
+                        <rect x="-100" y="-100" width="${w+200}" height="${h+200}" fill="white"/>
+                        <polygon points="${points}" fill="black"/>
+                    </mask>
+                    <filter id="${id}-shadow" filterUnits="userSpaceOnUse" x="-100" y="-100" width="${w+200}" height="${h+200}">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="7" result="soft"/>
+                        <feOffset in="soft" dy="10" result="offset"/>
+                        <feFlood flood-color="#100208" flood-opacity="0.85" result="ink"/>
+                        <feComposite in="ink" in2="offset" operator="in" result="cast"/>
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="1.5" result="near"/>
+                        <feOffset in="near" dy="2" result="nearOffset"/>
+                        <feFlood flood-color="#100208" flood-opacity="0.75" result="dark"/>
+                        <feComposite in="dark" in2="nearOffset" operator="in" result="contact"/>
+                        <feMerge><feMergeNode in="cast"/><feMergeNode in="contact"/></feMerge>
+                    </filter>
+                    <linearGradient id="${id}-edge" x1="0" y1="0" x2="0.75" y2="1">
+                        <stop offset="0" stop-color="#fff" stop-opacity="0.65"/>
+                        <stop offset="0.45" stop-color="#fff" stop-opacity="0.18"/>
+                        <stop offset="1" stop-color="#f4b6c2" stop-opacity="0.38"/>
+                    </linearGradient>
+                </defs>
+                <g mask="url(#${id}-outside)">
+                    <polygon points="${points}" fill="none" stroke="black" stroke-width="5" stroke-linejoin="round" filter="url(#${id}-shadow)"/>
+                </g>
+                <polygon points="${points}" fill="none" stroke="#18050d" stroke-opacity="0.65" stroke-width="2.6" stroke-linejoin="round"/>
+                <polygon points="${points}" fill="none" stroke="url(#${id}-edge)" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>`;
         }
-
-        function cyclePrevPhoto() {
-            if (isAnimating) return;
-            isAnimating = true;
-
-            const bottomCard = cards.at(-1);
-            bottomCard.classList.add('pulling-up');
-            cards.unshift(cards.pop());
-
-            setTimeout(() => {
-                bottomCard.classList.remove('pulling-up');
-                updateStackLayout();
-                isAnimating = false;
-            }, 720);
+        const framedShards = Array.from(document.querySelectorAll('.glass-shard'));
+        function refreshShardFrames() {
+            framedShards.forEach(drawShardFrame);
         }
+        refreshShardFrames();
+        const frameObserver = new ResizeObserver(refreshShardFrames);
+        framedShards.forEach(shard => frameObserver.observe(shard));
+        window.addEventListener('resize', refreshShardFrames);
 
-        stack.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            if (e.deltaY > 0) {
-                cycleNextPhoto();
-            } else if (e.deltaY < 0) {
-                cyclePrevPhoto();
-            }
-        }, { passive: false });
-
-        stack.addEventListener('click', (e) => {
-            e.preventDefault();
-            cycleNextPhoto();
-        });
-
-        updateStackLayout();
+        prepareGallery();
     </script>
 </body>
 </html>
